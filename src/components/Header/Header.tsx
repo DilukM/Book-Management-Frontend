@@ -80,7 +80,7 @@ export default function Header() {
           <div className={styles.authSection}>
             {isAuthenticated ? (
               <>
-                <span className={styles.username}>👤 {user?.username}</span>
+                <span className={styles.username}>👤 {user?.name}</span>
                 <button onClick={handleLogout} className={styles.logoutButton}>
                   Logout
                 </button>
