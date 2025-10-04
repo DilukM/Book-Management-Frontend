@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import styles from "./Header.module.css";
@@ -30,7 +31,14 @@ export default function Header() {
     <header className={styles.header}>
       <div className={styles.container}>
         <Link href="/" className={styles.logo} onClick={closeMobileMenu}>
-          📚 BookHub
+<Image
+            src="/logo.png"
+            alt="BookHub Logo"
+            width={32}
+            height={32}
+            className={styles.logoImage}
+          />
+          BookHub
         </Link>
 
         <button

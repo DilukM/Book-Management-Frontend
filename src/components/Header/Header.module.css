@@ -20,6 +20,9 @@
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-size: 1.5rem;
   font-weight: 800;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -27,12 +30,24 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-decoration: none;
-  transition: transform 0.3s ease;
-  letter-spacing: -0.5px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logo:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px);
+}
+
+.logoImage {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.3));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo:hover .logoImage {
+  transform: scale(1.1);
+  filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.4));
 }
 
 .mobileMenuButton {
@@ -244,6 +259,12 @@
 @media (max-width: 576px) {
   .logo {
     font-size: 1.25rem;
+    gap: 8px;
+  }
+
+  .logoImage {
+    width: 28px;
+    height: 28px;
   }
 
   .nav {
