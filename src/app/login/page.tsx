@@ -10,7 +10,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   });
   const [error, setError] = useState("");
@@ -30,7 +30,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     // Validation
-    if (!formData.username || !formData.password) {
+    if (!formData.email || !formData.password) {
       setError("Please fill in all fields");
       setIsLoading(false);
       return;
@@ -56,17 +56,17 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
-            <label htmlFor="username" className={styles.label}>
-              Username
+            <label htmlFor="email" className={styles.label}>
+              Email
             </label>
             <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
               className={styles.input}
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               disabled={isLoading}
             />
           </div>
@@ -106,11 +106,11 @@ export default function LoginPage() {
         <div className={styles.demo}>
           <p className={styles.demoTitle}>Demo Credentials:</p>
           <p className={styles.demoText}>
-            Username: <strong>admin</strong> | Password:{" "}
+            Email: <strong>admin@example.com</strong> | Password:{" "}
             <strong>admin123</strong>
           </p>
           <p className={styles.demoText}>
-            Username: <strong>user</strong> | Password: <strong>user123</strong>
+            Email: <strong>user@example.com</strong> | Password: <strong>user123</strong>
           </p>
         </div>
       </div>

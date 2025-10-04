@@ -21,26 +21,29 @@ export interface BookFormData {
 // User Types
 export interface User {
   id: string;
-  username: string;
+  email: string;
+  name: string;
   password?: string;
 }
 
 export interface AuthUser {
   id: string;
-  username: string;
+  email: string;
+  name: string;
   token: string;
 }
 
 // Auth Types
 export interface LoginCredentials {
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface RegisterData {
-  username: string;
+  email: string;
   password: string;
   confirmPassword: string;
+  name: string;
 }
 
 // Pagination Types
@@ -61,6 +64,35 @@ export interface BookFilters {
   search?: string;
   genre?: string;
   author?: string;
+}
+
+// Auth GraphQL Types
+export interface SignUpResponse {
+  signUp: {
+    access_token: string;
+    user: {
+      id: string;
+      email: string;
+      name: string;
+    };
+  };
+}
+
+export interface SignInResponse {
+  signIn: {
+    access_token: string;
+    user: {
+      id: string;
+      email: string;
+      name: string;
+    };
+  };
+}
+
+export interface LogoutResponse {
+  logout: {
+    message: string;
+  };
 }
 
 // API Response Types

@@ -7,8 +7,9 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { AuthUser, LoginCredentials, RegisterData } from "@/types";
-import booksData from "@/data/books.json";
+import { useMutation } from '@apollo/client/react';
+import { AuthUser, LoginCredentials, RegisterData, SignUpResponse, SignInResponse, LogoutResponse } from "@/types";
+import { SIGN_UP, SIGN_IN, LOGOUT } from '@/lib/auth';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -29,6 +30,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [signUpMutation] = useMutation<SignUpResponse>(SIGN_UP);
+  const [signInMutation] = useMutation<SignInResponse>(SIGN_IN);
+  const [logoutMutation] = useMutation<LogoutResponse>(LOGOUT);
+
   useEffect(() => {
     // Check if user is logged in from localStorage
     const storedUser = localStorage.getItem("user");
@@ -44,34 +49,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     credentials: LoginCredentials
   ): Promise<{ success: boolean; message?: string }> => {
     try {
-      // Simulate API call - Check against JSON data
-      const foundUser = booksData.users.find(
-        (u) =>
-          u.username === credentials.username &&
-          u.password === credentials.password
-      );
+      const { data } = await signInMutation({
+        variables: { input: credentials },
+      });
 
-      if (!foundUser) {
-        return { success: false, message: "Invalid username or password" };
+      if (data?.signIn) {
+        const { access_token, user: userData } = data.signIn;
+        const authUser: AuthUser = {
+          id: userData.id,
+          email: userData.email,
+          name: userData.name,
+          token: access_token,
+        };
+
+        localStorage.setItem("user", JSON.stringify(authUser));
+        localStorage.setItem("token", access_token);
+        setUser(authUser);
+        return { success: true };
       }
-
-      // Generate a simple token (in real app, this would come from backend)
-      const token = btoa(`${foundUser.username}:${Date.now()}`);
-
-      const authUser: AuthUser = {
-        id: foundUser.id,
-        username: foundUser.username,
-        token,
-      };
-
-      // Store in localStorage
-      localStorage.setItem("user", JSON.stringify(authUser));
-      localStorage.setItem("token", token);
-
-      setUser(authUser);
-      return { success: true };
-    } catch (error) {
-      return { success: false, message: "An error occurred during login" };
+      return { success: false, message: "Invalid credentials" };
+    } catch (error: any) {
+      return { success: false, message: error.message || "An error occurred during login" };
     }
   };
 
@@ -84,42 +82,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, message: "Passwords do not match" };
       }
 
-      // Check if username already exists
-      const existingUser = booksData.users.find(
-        (u) => u.username === data.username
-      );
-      if (existingUser) {
-        return { success: false, message: "Username already exists" };
+      const { data: result } = await signUpMutation({
+        variables: { input: { email: data.email, password: data.password, name: data.name } },
+      });
+
+      if (result?.signUp) {
+        const { access_token, user: userData } = result.signUp;
+        const authUser: AuthUser = {
+          id: userData.id,
+          email: userData.email,
+          name: userData.name,
+          token: access_token,
+        };
+
+        localStorage.setItem("user", JSON.stringify(authUser));
+        localStorage.setItem("token", access_token);
+        setUser(authUser);
+        return { success: true };
       }
-
-      // In a real app, this would save to backend
-      // For now, we'll just create a user object and log them in
-      const newUser = {
-        id: String(Date.now()),
-        username: data.username,
-      };
-
-      const token = btoa(`${newUser.username}:${Date.now()}`);
-
-      const authUser: AuthUser = {
-        ...newUser,
-        token,
-      };
-
-      localStorage.setItem("user", JSON.stringify(authUser));
-      localStorage.setItem("token", token);
-
-      setUser(authUser);
-      return { success: true };
-    } catch (error) {
+      return { success: false, message: "Registration failed" };
+    } catch (error: any) {
       return {
         success: false,
-        message: "An error occurred during registration",
+        message: error.message || "An error occurred during registration",
       };
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await logoutMutation();
+    } catch (error) {
+      // Ignore logout errors
+    }
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setUser(null);

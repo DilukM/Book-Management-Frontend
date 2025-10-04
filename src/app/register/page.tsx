@@ -10,7 +10,8 @@ export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
+    name: "",
     password: "",
     confirmPassword: "",
   });
@@ -31,7 +32,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     // Validation
-    if (!formData.username || !formData.password || !formData.confirmPassword) {
+    if (!formData.email || !formData.name || !formData.password || !formData.confirmPassword) {
       setError("Please fill in all fields");
       setIsLoading(false);
       return;
@@ -71,17 +72,33 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
-            <label htmlFor="username" className={styles.label}>
-              Username
+            <label htmlFor="email" className={styles.label}>
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={styles.input}
+              placeholder="Enter your email"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="name" className={styles.label}>
+              Full Name
             </label>
             <input
               type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              id="name"
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               className={styles.input}
-              placeholder="Choose a username"
+              placeholder="Enter your full name"
               disabled={isLoading}
             />
           </div>
