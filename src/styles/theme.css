@@ -1,6 +1,6 @@
-/* Modern Color Palette & Theme Variables */
+/* Color Palette & Theme Variables */
 :root {
-  /* Primary Colors - Modern Purple/Blue Gradient */
+  /* Primary Colors - Purple/Blue Gradient */
   --primary-main: #667eea;
   --primary-light: #764ba2;
   --primary-dark: #5568d3;
@@ -36,7 +36,7 @@
   --info-light: #5dade2;
   --info-dark: #2874a6;
 
-  /* Background Colors - Modern */
+  /* Background Colors */
   --background-default: #f8f9fd;
   --background-paper: #ffffff;
   --background-alt: #f0f2f8;
@@ -60,7 +60,7 @@
   --border-light: #f0f0f0;
   --border-dark: #bdc3c7;
 
-  /* Modern Shadows */
+  /* Shadows */
   --shadow-sm: 0 2px 8px rgba(102, 126, 234, 0.1);
   --shadow-md: 0 4px 16px rgba(102, 126, 234, 0.15);
   --shadow-lg: 0 8px 32px rgba(102, 126, 234, 0.2);
@@ -115,7 +115,7 @@
   --z-tooltip: 1070;
 }
 
-/* Dark mode support (optional for future enhancement) */
+/* Dark mode support */
 [data-theme="dark"] {
   --primary-main: #34495e;
   --primary-light: #4a5f7f;
