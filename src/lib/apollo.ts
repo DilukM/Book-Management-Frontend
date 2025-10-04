@@ -1,8 +1,13 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
+// Automatically select the correct GraphQL URL based on environment
+const getGraphQLUrl = () => {
+  return process.env.NEXT_PUBLIC_GRAPHQL_URL;
+};
+
 const httpLink = createHttpLink({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:4000/graphql",
+  uri: getGraphQLUrl(),
 });
 
 const authLink = setContext((_, { headers }) => {

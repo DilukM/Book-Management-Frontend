@@ -7,9 +7,25 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { useQuery, useMutation } from '@apollo/client/react';
-import { Book, BookFormData, PaginatedResponse, BookFilters, GetBooksResponse, GetBookResponse, CreateBookResponse, UpdateBookResponse, DeleteBookResponse } from "@/types";
-import { GET_BOOKS, GET_BOOK, CREATE_BOOK, UPDATE_BOOK, DELETE_BOOK } from '@/lib/books';
+import { useQuery, useMutation } from "@apollo/client/react";
+import {
+  Book,
+  BookFormData,
+  PaginatedResponse,
+  BookFilters,
+  GetBooksResponse,
+  GetBookResponse,
+  CreateBookResponse,
+  UpdateBookResponse,
+  DeleteBookResponse,
+} from "@/types";
+import {
+  GET_BOOKS,
+  GET_BOOK,
+  CREATE_BOOK,
+  UPDATE_BOOK,
+  DELETE_BOOK,
+} from "@/lib/books";
 
 interface BookContextType {
   books: Book[];
@@ -115,8 +131,10 @@ export function BookProvider({ children }: { children: ReactNode }) {
         };
       }
       return { success: false, message: "Failed to add book" };
-    } catch (error: any) {
-      return { success: false, message: error.message || "Failed to add book" };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to add book";
+      return { success: false, message };
     }
   };
 
@@ -144,8 +162,10 @@ export function BookProvider({ children }: { children: ReactNode }) {
         return { success: true, message: "Book updated successfully" };
       }
       return { success: false, message: "Failed to update book" };
-    } catch (error: any) {
-      return { success: false, message: error.message || "Failed to update book" };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update book";
+      return { success: false, message };
     }
   };
 
@@ -162,8 +182,10 @@ export function BookProvider({ children }: { children: ReactNode }) {
         return { success: true, message: data.deleteBook.message };
       }
       return { success: false, message: "Failed to delete book" };
-    } catch (error: any) {
-      return { success: false, message: error.message || "Failed to delete book" };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to delete book";
+      return { success: false, message };
     }
   };
 

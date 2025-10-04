@@ -7,9 +7,16 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { useMutation } from '@apollo/client/react';
-import { AuthUser, LoginCredentials, RegisterData, SignUpResponse, SignInResponse, LogoutResponse } from "@/types";
-import { SIGN_UP, SIGN_IN, LOGOUT } from '@/lib/auth';
+import { useMutation } from "@apollo/client/react";
+import {
+  AuthUser,
+  LoginCredentials,
+  RegisterData,
+  SignUpResponse,
+  SignInResponse,
+  LogoutResponse,
+} from "@/types";
+import { SIGN_UP, SIGN_IN, LOGOUT } from "@/lib/auth";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -68,8 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: true };
       }
       return { success: false, message: "Invalid credentials" };
-    } catch (error: any) {
-      return { success: false, message: error.message || "An error occurred during login" };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An error occurred during login";
+      return { success: false, message };
     }
   };
 
@@ -83,7 +94,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const { data: result } = await signUpMutation({
-        variables: { input: { email: data.email, password: data.password, name: data.name } },
+        variables: {
+          input: {
+            email: data.email,
+            password: data.password,
+            name: data.name,
+          },
+        },
       });
 
       if (result?.signUp) {
@@ -101,10 +118,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: true };
       }
       return { success: false, message: "Registration failed" };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An error occurred during registration";
       return {
         success: false,
-        message: error.message || "An error occurred during registration",
+        message,
       };
     }
   };
@@ -112,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await logoutMutation();
-    } catch (error) {
+    } catch {
       // Ignore logout errors
     }
     localStorage.removeItem("user");
