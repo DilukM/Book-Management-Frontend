@@ -7,8 +7,9 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { Book, BookFormData, PaginatedResponse, BookFilters } from "@/types";
-import booksData from "@/data/books.json";
+import { useQuery, useMutation } from '@apollo/client/react';
+import { Book, BookFormData, PaginatedResponse, BookFilters, GetBooksResponse, GetBookResponse, CreateBookResponse, UpdateBookResponse, DeleteBookResponse } from "@/types";
+import { GET_BOOKS, GET_BOOK, CREATE_BOOK, UPDATE_BOOK, DELETE_BOOK } from '@/lib/books';
 
 interface BookContextType {
   books: Book[];
@@ -33,27 +34,12 @@ interface BookContextType {
 const BookContext = createContext<BookContextType | undefined>(undefined);
 
 export function BookProvider({ children }: { children: ReactNode }) {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data, loading, refetch } = useQuery<GetBooksResponse>(GET_BOOKS);
+  const books = data?.books || [];
 
-  useEffect(() => {
-    // Load books from localStorage or use default data
-    const storedBooks = localStorage.getItem("books");
-    if (storedBooks) {
-      setBooks(JSON.parse(storedBooks));
-    } else {
-      setBooks(booksData.books);
-      localStorage.setItem("books", JSON.stringify(booksData.books));
-    }
-    setIsLoading(false);
-  }, []);
-
-  // Update localStorage whenever books change
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem("books", JSON.stringify(books));
-    }
-  }, [books, isLoading]);
+  const [createBookMutation] = useMutation<CreateBookResponse>(CREATE_BOOK);
+  const [updateBookMutation] = useMutation<UpdateBookResponse>(UPDATE_BOOK);
+  const [deleteBookMutation] = useMutation<DeleteBookResponse>(DELETE_BOOK);
 
   const getBooks = (
     page: number = 1,
@@ -107,24 +93,30 @@ export function BookProvider({ children }: { children: ReactNode }) {
     bookData: BookFormData
   ): Promise<{ success: boolean; message?: string; book?: Book }> => {
     try {
-      const newBook: Book = {
-        id: String(Date.now()),
-        title: bookData.title,
-        author: bookData.author,
-        publishedYear: Number(bookData.publishedYear),
-        genre: bookData.genre,
-        description: bookData.description || "",
-        isbn: bookData.isbn || "",
-      };
+      const { data } = await createBookMutation({
+        variables: {
+          input: {
+            title: bookData.title,
+            author: bookData.author,
+            publishedYear: Number(bookData.publishedYear),
+            genre: bookData.genre,
+            description: bookData.description || undefined,
+            isbn: bookData.isbn || undefined,
+          },
+        },
+      });
 
-      setBooks((prevBooks) => [...prevBooks, newBook]);
-      return {
-        success: true,
-        message: "Book added successfully",
-        book: newBook,
-      };
-    } catch (error) {
+      if (data?.createBook) {
+        await refetch();
+        return {
+          success: true,
+          message: "Book added successfully",
+          book: data.createBook,
+        };
+      }
       return { success: false, message: "Failed to add book" };
+    } catch (error: any) {
+      return { success: false, message: error.message || "Failed to add book" };
     }
   };
 
@@ -133,30 +125,27 @@ export function BookProvider({ children }: { children: ReactNode }) {
     bookData: BookFormData
   ): Promise<{ success: boolean; message?: string }> => {
     try {
-      const bookIndex = books.findIndex((book) => book.id === id);
-      if (bookIndex === -1) {
-        return { success: false, message: "Book not found" };
-      }
-
-      const updatedBook: Book = {
-        ...books[bookIndex],
-        title: bookData.title,
-        author: bookData.author,
-        publishedYear: Number(bookData.publishedYear),
-        genre: bookData.genre,
-        description: bookData.description || "",
-        isbn: bookData.isbn || "",
-      };
-
-      setBooks((prevBooks) => {
-        const newBooks = [...prevBooks];
-        newBooks[bookIndex] = updatedBook;
-        return newBooks;
+      const { data } = await updateBookMutation({
+        variables: {
+          id,
+          input: {
+            title: bookData.title,
+            author: bookData.author,
+            publishedYear: Number(bookData.publishedYear),
+            genre: bookData.genre,
+            description: bookData.description || undefined,
+            isbn: bookData.isbn || undefined,
+          },
+        },
       });
 
-      return { success: true, message: "Book updated successfully" };
-    } catch (error) {
+      if (data?.updateBook) {
+        await refetch();
+        return { success: true, message: "Book updated successfully" };
+      }
       return { success: false, message: "Failed to update book" };
+    } catch (error: any) {
+      return { success: false, message: error.message || "Failed to update book" };
     }
   };
 
@@ -164,15 +153,17 @@ export function BookProvider({ children }: { children: ReactNode }) {
     id: string
   ): Promise<{ success: boolean; message?: string }> => {
     try {
-      const bookExists = books.some((book) => book.id === id);
-      if (!bookExists) {
-        return { success: false, message: "Book not found" };
-      }
+      const { data } = await deleteBookMutation({
+        variables: { id },
+      });
 
-      setBooks((prevBooks) => prevBooks.filter((book) => book.id !== id));
-      return { success: true, message: "Book deleted successfully" };
-    } catch (error) {
+      if (data?.deleteBook) {
+        await refetch();
+        return { success: true, message: data.deleteBook.message };
+      }
       return { success: false, message: "Failed to delete book" };
+    } catch (error: any) {
+      return { success: false, message: error.message || "Failed to delete book" };
     }
   };
 
@@ -190,7 +181,7 @@ export function BookProvider({ children }: { children: ReactNode }) {
 
   const value: BookContextType = {
     books,
-    isLoading,
+    isLoading: loading,
     getBooks,
     getBookById,
     addBook,

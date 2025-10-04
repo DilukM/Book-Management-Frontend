@@ -95,6 +95,29 @@ export interface LogoutResponse {
   };
 }
 
+// Book GraphQL Types
+export interface GetBooksResponse {
+  books: Book[];
+}
+
+export interface GetBookResponse {
+  book: Book;
+}
+
+export interface CreateBookResponse {
+  createBook: Book;
+}
+
+export interface UpdateBookResponse {
+  updateBook: Book;
+}
+
+export interface DeleteBookResponse {
+  deleteBook: {
+    message: string;
+  };
+}
+
 // API Response Types
 export interface ApiResponse<T> {
   success: boolean;
